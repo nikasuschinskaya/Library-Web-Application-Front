@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Pagination, Card } from "react-bootstrap";
-import LibraryApi from "../../api"; 
 import { Link } from "react-router-dom"; 
+import { Container, Row, Col, Pagination, Card, Form, Button } from "react-bootstrap";
+
+import LibraryApi from "../../api"; 
+import { bookStockStatus } from "../../config/bookStockStatus.config";
+import styles from "./book.module.css";
 
 export const BookPage = () => {
   const [books, setBooks] = useState([]);
@@ -9,7 +12,30 @@ export const BookPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [searchTitle, setSearchTitle] = useState(''); // Для строки поиска
+  const [selectedGenre, setSelectedGenre] = useState(''); // Для фильтра по жанру
+  const [selectedAuthor, setSelectedAuthor] = useState(''); // Для фильтра по автору
+  const [genres, setGenres] = useState([]); // Список жанров
+  const [authors, setAuthors] = useState([]); // Список авторов
 
+  // Загружаем список жанров и авторов при инициализации
+  useEffect(() => {
+    const fetchGenresAndAuthors = async () => {
+      try {
+        const genresResponse = await LibraryApi.getAllGenres(); 
+        const authorsResponse = await LibraryApi.getAllAuthors(); 
+        setGenres(genresResponse);
+        setAuthors(authorsResponse);
+      } catch (err) {
+        console.error("Error fetching genres/authors", err);
+      }
+    };
+
+    fetchGenresAndAuthors();
+  }, []);
+
+  // Функция для загрузки книг на текущей странице
   useEffect(() => {
     const fetchBooks = async (pageNumber) => {
       setLoading(true);
@@ -28,30 +54,121 @@ export const BookPage = () => {
     fetchBooks(currentPage);
   }, [currentPage]);
 
+  // Обработчик для поиска по названию
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      const response = await LibraryApi.searchBooksByTitle(searchTitle);
+      setBooks(response);
+      setTotalPages(1); // При поиске всегда одна страница
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Обработчик для фильтрации по жанру и автору
+  const handleFilter = async () => {
+    try {
+      setLoading(true);
+      const response = await LibraryApi.filterBooks(selectedGenre, selectedAuthor);
+      setBooks(response);
+      setTotalPages(1); // При фильтрации всегда одна страница
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
   return (
     <Container>
-      <h1 className="my-4">Book List</h1>
+      <h2 className="my-4">Каталог книг</h2>
+
+      <Form className="mb-4">
+        <Row>
+          <Col xs={12} sm={6} md={4}>
+            <Form.Group>
+              <Form.Label>Поиск по названию</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Введите название книги"
+                value={searchTitle}
+                onChange={(e) => setSearchTitle(e.target.value)}
+                onKeyDown={(e) => { 
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+              />
+            </Form.Group>
+          </Col>
+          <Col xs={12} sm={3}>
+            <Form.Group>
+              <Form.Label>Жанр</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+              >
+                <option value="">Все жанры</option>
+                {genres.map((genre) => (
+                  <option key={genre.id} value={genre.name}>{genre.name}</option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Col>
+          <Col xs={12} sm={3}>
+            <Form.Group>
+              <Form.Label>Автор</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedAuthor}
+                onChange={(e) => setSelectedAuthor(e.target.value)}
+              >
+                <option value="">Все авторы</option>
+                {authors.map((author) => (
+                  <option key={author.id} value={author.surname}>{author.name + " " + author.surname}</option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Col>
+          <Col xs={12} sm={6} md={4} className="mt-2">
+            <Button variant="primary" onClick={handleSearch}>
+              Поиск
+            </Button>
+            <Button variant="secondary" className="ml-2" onClick={handleFilter}>
+              Фильтровать
+            </Button>
+          </Col>
+        </Row>
+      </Form>
 
       {loading ? (
-        <p>Loading...</p>
+        <p className={styles.loading}>Загрузка...</p>
       ) : error ? (
-        <p className="text-danger">Error: {error}</p>
+        <p className={styles.error}>Ошибка: {error}</p>
       ) : books.length === 0 ? (
-        <p>No books available</p>
+        <p>Книги не найдены</p>
       ) : (
         <Row>
           {books.map((book) => (
-            <Col xs={12} sm={6} md={4} lg={3} className="mb-4" key={book.isbn}>
+            <Col xs={12} sm={6} md={4} className="mb-4" key={book.isbn}> 
               <Link to={`/book/${book.isbn}`} style={{ textDecoration: "none" }}>
-                <Card>
-                  <Card.Body>
+                <Card className={styles.card}>
+                  <Card.Body className={styles["card-body"]}>
                     <Card.Title>{book.name}</Card.Title>
-                    <Card.Text>
-                        {book.authors.map((author) => author.name + " " + author.surname).join(", ")}
+                    <Card.Text className={styles.authors}>
+                      {book.authors.map((author) => author.name + " " + author.surname).join(", ")}
+                    </Card.Text>
+                    <Card.Text className={book.bookStockStatus === "InStock" ? styles.inStock : styles.notInStock}>
+                      {bookStockStatus[book.bookStockStatus] || "Неизвестный статус"}
                     </Card.Text>
                   </Card.Body>
                 </Card>
@@ -61,25 +178,26 @@ export const BookPage = () => {
         </Row>
       )}
 
-      <Pagination className="justify-content-center">
-        <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
-        <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-        
-        {[...Array(totalPages).keys()].map((page) => (
-          <Pagination.Item
-            key={page + 1}
-            active={page + 1 === currentPage}
-            onClick={() => handlePageChange(page + 1)}
-          >
-            {page + 1}
-          </Pagination.Item>
-        ))}
-        
-        <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-        <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
-      </Pagination>
+    
+      <div className={styles["pagination-container"]}>
+        <Pagination className="justify-content-center">
+          <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1} />
+          <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+          
+          {[...Array(totalPages).keys()].map((page) => (
+            <Pagination.Item
+              key={page + 1}
+              active={page + 1 === currentPage}
+              onClick={() => handlePageChange(page + 1)}
+            >
+              {page + 1}
+            </Pagination.Item>
+          ))}
+          
+          <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages} />
+        </Pagination>
+      </div>
     </Container>
   );
 };
-
-export default BookPage;

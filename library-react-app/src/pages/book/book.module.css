@@ -1,0 +1,58 @@
+.card {
+    width: 100% !important;
+    width: 500px; 
+    margin: 0 auto; 
+    height: 100%; 
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important; 
+  }
+  
+  .card-body {
+    flex-grow: 1; 
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .authors {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+  }
+  
+  .inStock {
+    color: #28a745; 
+    font-weight: bold;
+  }
+  
+  .notInStock {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  .loading {
+    font-size: 1.2rem;
+    text-align: center;
+    color: #007bff;
+  }
+  
+  .error {
+    font-size: 1.2rem;
+    color: #dc3545;
+    text-align: center;
+  }
+  
+  .pagination-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background-color: #161616;
+    padding: 15px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: flex !important;
+    justify-content: center !important; 
+    margin: 0; 
+}

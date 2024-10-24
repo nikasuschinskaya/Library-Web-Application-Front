@@ -1,0 +1,90 @@
+/* Стиль для контейнера страницы */
+.container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    /* font-family: Arial, sans-serif; */
+  }
+  
+  /* Стиль для карточки с информацией о книге */
+  .card {
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  /* Стиль для заголовка книги */
+  .card-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #343a40;
+    margin-bottom: 15px;
+  }
+  
+  /* Стиль для текста с информацией о книге */
+  .card-text {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 10px;
+  }
+  
+  /* Стиль для текста с метками (автор, ISBN и жанр) */
+  .card-text strong {
+    color: #495057;
+  }
+  
+  /* Стиль для изображения книги */
+  .image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+  }
+  
+  /* Стиль для текста статуса книги */
+  .in-stock {
+    color: #28a745;
+    font-weight: bold;
+  }
+  
+  .not-in-stock {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  
+  /* Стиль для отображения ошибок */
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .button {
+    min-width: 100px;
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .card-title {
+      font-size: 20px;
+    }
+  
+    .card-text {
+      font-size: 14px;
+    }
+    
+    .container {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  }
+  
