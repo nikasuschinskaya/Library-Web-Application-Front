@@ -1,5 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import { Header } from "./components/Header";
+import { Header } from "./components/header";
+
+import { BookPage } from "./pages/book";
+import { BookInfoPage } from "./pages/bookInfo";
 
 // import { RegistrationPage } from "./pages/registration";
 // import { CountriesPage } from "./pages/countries";
@@ -15,8 +18,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 const App = () => {
   return (
     <BrowserRouter>
-        {/* <Header /> */}
+        <Header />
         <Routes>
+          {/* <Route path="/books/:pageNumber" element={<BookPage />} /> */}
+          <Route path="/" element={<BookPage />} />
+          <Route path="/book/:isbn" element={<BookInfoPage />} />
           {/* <Route index path="/" element={<RegistrationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/user" element={<UserPage />} />
