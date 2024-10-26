@@ -32,6 +32,19 @@ class LibraryApi {
         }
     }
 
+    async getBookById(id) {
+        try {
+            const response = await axios.get(`${baseUrl}/book/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching book:", error);
+            if (error.response && error.response.status === 400) {
+                throw new Error("Book not found.");
+            }
+            throw new Error("An error occurred while fetching book.");
+        }
+    }
+
 
     async getAllAuthors() {
         try {
@@ -81,7 +94,7 @@ class LibraryApi {
       }
     
       
-      async filterBooks(genre, authorName) {
+    async filterBooks(genre, authorName) {
         try {
             const response = await axios.get(`${baseUrl}/book/filter?genre=${genre}&authorName=${authorName}`);
             return response.data; 
@@ -94,6 +107,44 @@ class LibraryApi {
         }
     }
 
+    async addBook(bookRequest) {
+        try {
+          const response = await axios.post(`${baseUrl}/book/add`, bookRequest, {
+            headers: { "Content-Type": "application/json" },
+          });
+          return response.data;
+        } catch (error) {
+          throw error.response?.data?.message || "Failed to add book";
+        }
+    }
+    
+    async updateBook(id, bookRequest) {
+        try {
+          await axios.put(`${baseUrl}/book/update/${id}`, bookRequest, {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (error) {
+          throw error.response?.data?.message || "Failed to update book";
+        }
+    }
+    
+    async deleteBook(id) {
+        try {
+          await axios.delete(`${baseUrl}/book/delete/${id}`);
+        } catch (error) {
+          throw error.response?.data?.message || "Failed to delete book";
+        }
+    }
+    
+    async addBookImage(id, imageUrl) {
+        try {
+          await axios.put(`${baseUrl}/book/add-image/${id}`, imageUrl, {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (error) {
+          throw error.response?.data?.message || "Failed to add book image";
+        }
+    }
 }
 
 export default new LibraryApi();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Container, Row, Col, Image, Card, Alert, Button } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router-dom";
+import { Container, Row, Col, Image, Card, Alert, Button, Modal, Form } from "react-bootstrap";
 
 import noImage from "/images/no-image.png";
 import { bookStockStatus } from "../../config/bookStockStatus.config";
@@ -10,10 +10,15 @@ import styles from "./bookInfo.module.css";
 
 export const BookInfoPage = () => {
   const { isbn } = useParams();
+  const navigate = useNavigate();
+  
   const [book, setBook] = useState(null);
   const [genreName, setGenreName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageURL, setImageURL] = useState("");
 
   useEffect(() => {
     const fetchBookInfo = async () => {
@@ -39,15 +44,34 @@ export const BookInfoPage = () => {
   }, [isbn]);
 
   const handleTakeBook = () => {
-    console.log("Взять книгу:", book.name); //зашлушка
+    console.log("Взять книгу:", book.name);
+    
   };
 
   const handleEditBook = () => {
-    console.log("Редактировать книгу:", book.name); //зашлушка
+    navigate(`/book/edit/${book.id}`);
   };
 
-  const handleDeleteBook = () => {
-    console.log("Удалить книгу:", book.name); //зашлушка
+  const handleDeleteBook = async () => {
+    try {
+      await LibraryApi.deleteBook(book.id);
+      alert("Книга удалена.");
+      navigate("/books");
+    } catch (error) {
+      setError("Ошибка при удалении книги.");
+    } finally {
+      setShowModal(false);
+    }
+  };
+
+  const handleAddBookImage = async () => {
+    try {
+      await LibraryApi.addBookImage(book.id, imageURL);
+      setBook({ ...book, imageURL });
+      setShowImageModal(false);
+    } catch (error) {
+      setError("Ошибка при добавлении изображения.");
+    }
   };
 
   if (loading) {
@@ -66,11 +90,16 @@ export const BookInfoPage = () => {
     <Container className="my-4">
       <Row>
         <Col md={4}>
-          {book.imageURL ? (
-            <Image src={book.imageURL} alt={book.name} className={styles.image} fluid />
-          ) : (
-            <Image src={noImage} alt="No Image Available" className={styles.image} fluid />
-          )}
+          <div className={styles.imageContainer}>
+            {book.imageURL ? (
+              <Image src={book.imageURL} alt={book.name} className={styles.image} fluid />
+            ) : (
+              <div className={styles.addImageContainer} onClick={() => setShowImageModal(true)}>
+                <Image src={noImage} alt="No Image Available" className={styles.image} fluid />
+                <Button variant="outline-primary" className={styles.addImageButton}>+</Button>
+              </div>
+            )}
+          </div>
         </Col>
         <Col md={8}>
           <Card className={styles.card}>
@@ -93,14 +122,48 @@ export const BookInfoPage = () => {
               </Card.Text>
 
               <div className={styles.buttonGroup}>
-                <Button variant="primary" className={styles.button} onClick={handleTakeBook}>Взять книгу</Button>
+                {book.bookStockStatus === "InStock" && (
+                  <Button variant="primary" className={styles.button} onClick={handleTakeBook}>Взять книгу</Button>
+                )}
                 <Button variant="secondary" className={styles.button} onClick={handleEditBook}>Редактировать</Button>
-                <Button variant="danger" className={styles.button} onClick={handleDeleteBook}>Удалить</Button>
+                <Button variant="danger" className={styles.button} onClick={() => setShowModal(true)}>Удалить</Button>
               </div>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Удаление книги</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Вы уверены, что хотите удалить эту книгу?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Нет</Button>
+          <Button variant="danger" onClick={handleDeleteBook}>Да</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showImageModal} onHide={() => setShowImageModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Добавить изображение книги</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group controlId="imageUrl">
+            <Form.Label>Введите URL изображения</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="URL изображения"
+              value={imageURL}
+              onChange={(e) => setImageURL(e.target.value)}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowImageModal(false)}>Отмена</Button>
+          <Button variant="primary" onClick={handleAddBookImage}>Добавить</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

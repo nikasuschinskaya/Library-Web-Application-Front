@@ -13,13 +13,12 @@ export const BookPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const [searchTitle, setSearchTitle] = useState(''); // Для строки поиска
-  const [selectedGenre, setSelectedGenre] = useState(''); // Для фильтра по жанру
-  const [selectedAuthor, setSelectedAuthor] = useState(''); // Для фильтра по автору
-  const [genres, setGenres] = useState([]); // Список жанров
-  const [authors, setAuthors] = useState([]); // Список авторов
+  const [searchTitle, setSearchTitle] = useState(''); 
+  const [selectedGenre, setSelectedGenre] = useState(''); 
+  const [selectedAuthor, setSelectedAuthor] = useState('');
+  const [genres, setGenres] = useState([]); 
+  const [authors, setAuthors] = useState([]);
 
-  // Загружаем список жанров и авторов при инициализации
   useEffect(() => {
     const fetchGenresAndAuthors = async () => {
       try {
@@ -35,7 +34,7 @@ export const BookPage = () => {
     fetchGenresAndAuthors();
   }, []);
 
-  // Функция для загрузки книг на текущей странице
+
   useEffect(() => {
     const fetchBooks = async (pageNumber) => {
       setLoading(true);
@@ -54,13 +53,13 @@ export const BookPage = () => {
     fetchBooks(currentPage);
   }, [currentPage]);
 
-  // Обработчик для поиска по названию
+ 
   const handleSearch = async () => {
     try {
       setLoading(true);
       const response = await LibraryApi.searchBooksByTitle(searchTitle);
       setBooks(response);
-      setTotalPages(1); // При поиске всегда одна страница
+      setTotalPages(1); 
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,13 +67,13 @@ export const BookPage = () => {
     }
   };
 
-  // Обработчик для фильтрации по жанру и автору
+
   const handleFilter = async () => {
     try {
       setLoading(true);
       const response = await LibraryApi.filterBooks(selectedGenre, selectedAuthor);
       setBooks(response);
-      setTotalPages(1); // При фильтрации всегда одна страница
+      setTotalPages(1); 
     } catch (err) {
       setError(err.message);
     } finally {

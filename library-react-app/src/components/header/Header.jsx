@@ -36,7 +36,7 @@ export const Header = () => {
               <Navbar.Collapse id='responsive-navbar-nav'>
                 <Nav className='me-auto'>
                   <Nav.Link href='/books' className={styles.navlink}> Каталог книг </Nav.Link>
-                  <Nav.Link href='/authors' className={styles.navlink}> Авторы </Nav.Link>
+                  <Nav.Link href='/book/edit' className={styles.navlink}> Добавить книгу </Nav.Link>
                 </Nav>
                 <Form className='d-flex'>
                   <Button variant="outline-info" onClick={handleLogout} className={styles.customButton}>
