@@ -4,6 +4,58 @@ const baseUrl = `https://localhost:7187/api`;
 
 class LibraryApi {
     
+    async register(username, email, password) {
+        try {
+          const response = await axios.post(`${baseUrl}/authentication/register`, {
+            name: username,
+            email: email,
+            password: password,
+          });
+          console.log(JSON.stringify(response.data));
+          return response.data; 
+        } catch (error) {
+          console.error("Registration failed:", error);
+          throw error.response ? error.response.data : error.message;
+        }
+    }
+
+    async login(email, password) {
+        try {
+          const response = await axios.post(`${baseUrl}/authentication/login`, {
+            email: email,
+            password: password,
+          });
+          console.log(JSON.stringify(response.data));
+          return response.data; 
+        } catch (error) {
+          console.error("Login failed:", error);
+          throw error.response ? error.response.data : error.message;
+        }
+    }
+
+    async refreshAccessToken(accessToken, refreshToken) {
+        try {
+          const response = await axios.post(`${baseUrl}/authentication/refresh-access-token`, {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+          });
+          return response.data; 
+        } catch (error) {
+          console.error("Token refresh failed:", error);
+          throw error.response ? error.response.data : error.message;
+        }
+    }
+
+    async getUser(userId) {
+        try {
+            const response = await axios.get(`${baseUrl}/user/${userId}`);
+            return response.data;
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+            throw error.response ? error.response.data : error.message;
+        }
+    }
+
     async getAllBooksOnPage(pageNumber) {
         try {
             const response = await axios.get(`${baseUrl}/book/all/${pageNumber}`);
@@ -86,9 +138,6 @@ class LibraryApi {
             return response.data; 
         } catch (error) {
             console.error("Error searching books by title:", error);
-            if (error.response && error.response.status === 400) {
-                throw new Error("No books found with the given title.");
-            }
             throw new Error("An error occurred while searching for books.");
         }
       }
@@ -100,9 +149,6 @@ class LibraryApi {
             return response.data; 
         } catch (error) {
             console.error("Error filtering books:", error);
-            if (error.response && error.response.status === 400) {
-                throw new Error("No books found matching the criteria.");
-            }
             throw new Error("An error occurred while filtering books.");
         }
     }
@@ -120,11 +166,18 @@ class LibraryApi {
     
     async updateBook(id, bookRequest) {
         try {
-          await axios.put(`${baseUrl}/book/update/${id}`, bookRequest, {
-            headers: { "Content-Type": "application/json" },
-          });
+            await axios.put(`${baseUrl}/book/update/${id}`, bookRequest, {
+                headers: { "Content-Type": "application/json" },
+            });
         } catch (error) {
-          throw error.response?.data?.message || "Failed to update book";
+            console.error("API Error:", error);
+            if (error.response) {
+                console.error("Server responded with status:", error.response.status);
+                console.error("Response data:", error.response.data);
+                throw error.response.data.message || "Failed to update book";
+            } else {
+                throw "Network error occurred. Please try again.";
+            }
         }
     }
     
@@ -143,6 +196,32 @@ class LibraryApi {
           });
         } catch (error) {
           throw error.response?.data?.message || "Failed to add book image";
+        }
+    }
+
+    async returnBook(bookId, userId) {
+        try {
+            await axios.put(`${baseUrl}/book/return-book`, {
+                bookId: bookId,
+                usedId: userId
+            });
+            console.log("Book returned successfully:");
+        } catch (error) {
+            console.error("Error returning book:", error);
+            throw error.message;
+        }
+    }
+
+    async takeBook(bookId, userId) {
+        try {
+            await axios.put(`${baseUrl}/book/take-book`, {
+                bookId: bookId,
+                usedId: userId
+            });
+            console.log("Book taken successfully:");
+        } catch (error) {
+            console.error("Error taking book:", error);
+            throw error.message;
         }
     }
 }

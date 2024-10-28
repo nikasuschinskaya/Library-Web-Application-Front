@@ -6,8 +6,9 @@
   color: #FFF !important;
 }
 
-.userPoints {
-  color: #bebebe !important;
+.userEmail {
+  margin-right: 10px; 
+  color: #fff; 
 }
 
 .navlink {

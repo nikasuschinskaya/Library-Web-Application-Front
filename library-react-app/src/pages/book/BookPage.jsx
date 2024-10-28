@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom"; 
 import { Container, Row, Col, Pagination, Card, Form, Button } from "react-bootstrap";
 
 import LibraryApi from "../../api"; 
@@ -7,6 +7,8 @@ import { bookStockStatus } from "../../config/bookStockStatus.config";
 import styles from "./book.module.css";
 
 export const BookPage = () => {
+  const navigate = useNavigate();
+
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,9 +57,15 @@ export const BookPage = () => {
 
  
   const handleSearch = async () => {
+    if (!searchTitle.trim()) {
+      alert("Пожалуйста, введите название книги для поиска.");
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await LibraryApi.searchBooksByTitle(searchTitle);
+
       setBooks(response);
       setTotalPages(1); 
     } catch (err) {
@@ -87,7 +95,16 @@ export const BookPage = () => {
 
   return (
     <Container>
-      <h2 className="my-4">Каталог книг</h2>
+      <Row className="align-items-center justify-content-between my-4">
+        <Col>
+          <h2>Каталог книг</h2>
+        </Col>
+        <Col xs="auto">
+          <Button variant="success" onClick={() => navigate("/book/edit")}>
+            Добавить книгу
+          </Button>
+        </Col>
+      </Row>
 
       <Form className="mb-4">
         <Row>

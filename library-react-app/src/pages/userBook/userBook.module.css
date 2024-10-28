@@ -1,0 +1,46 @@
+.pageContainer {
+    padding: 20px;
+  }
+  
+  .userInfo {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .userInfo h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.3rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .bookList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .bookCard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bookCard .card-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .bookCard .card-text {
+    font-size: 1rem;
+    color: #555 !important;
+  }

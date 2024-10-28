@@ -4,6 +4,7 @@ import { Container, Row, Col, Image, Card, Alert, Button, Modal, Form } from "re
 
 import noImage from "/images/no-image.png";
 import { bookStockStatus } from "../../config/bookStockStatus.config";
+import { useUserContext } from "../../context/UserContext";
 import LibraryApi from "../../api";
 
 import styles from "./bookInfo.module.css";
@@ -11,6 +12,7 @@ import styles from "./bookInfo.module.css";
 export const BookInfoPage = () => {
   const { isbn } = useParams();
   const navigate = useNavigate();
+  const { user } = useUserContext();
   
   const [book, setBook] = useState(null);
   const [genreName, setGenreName] = useState("");
@@ -19,6 +21,7 @@ export const BookInfoPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageURL, setImageURL] = useState("");
+  const [hasTakenBook, setHasTakenBook] = useState(false); 
 
   useEffect(() => {
     const fetchBookInfo = async () => {
@@ -43,9 +46,15 @@ export const BookInfoPage = () => {
     fetchBookInfo();
   }, [isbn]);
 
-  const handleTakeBook = () => {
-    console.log("Взять книгу:", book.name);
-    
+  const handleTakeBook = async () => {
+    if (!book) return; 
+
+    try {
+      await LibraryApi.takeBook(book.id, user.id);
+      setHasTakenBook(true); 
+    } catch (error) {
+      setError("Ошибка при взятии книги."); 
+    }
   };
 
   const handleEditBook = () => {
@@ -117,16 +126,24 @@ export const BookInfoPage = () => {
               <Card.Text className={styles["card-text"]}>
                 <strong>Описание:</strong> {book.description}
               </Card.Text>
-              <Card.Text className={book.bookStockStatus === "InStock" ? styles["in-stock"] : styles["not-in-stock"]}>
-                {bookStockStatus[book.bookStockStatus] || "Unknown status"}
-              </Card.Text>
-
-              <div className={styles.buttonGroup}>
-                {book.bookStockStatus === "InStock" && (
-                  <Button variant="primary" className={styles.button} onClick={handleTakeBook}>Взять книгу</Button>
-                )}
-                <Button variant="secondary" className={styles.button} onClick={handleEditBook}>Редактировать</Button>
-                <Button variant="danger" className={styles.button} onClick={() => setShowModal(true)}>Удалить</Button>
+              {!hasTakenBook && (
+                <Card.Text className={book.bookStockStatus === "InStock" ? styles["in-stock"] : styles["not-in-stock"]}>
+                  {bookStockStatus[book.bookStockStatus] || "Unknown status"}
+                </Card.Text>
+              )}
+              <div className={styles.groupButton}>
+                <div className={styles.userButton}>
+                  {book.bookStockStatus === "InStock" && !hasTakenBook && (
+                      <Button variant="primary" className={styles.button} onClick={handleTakeBook}>Взять книгу</Button>
+                    )}
+                    {hasTakenBook && (
+                      <span className={styles["taken-book-text"]}>Вы уже взяли эту книгу</span>
+                    )}
+                </div>
+                <div className={styles.adminButtonGroup}>
+                  <Button variant="secondary" className={styles.button} onClick={handleEditBook}>Редактировать</Button>
+                  <Button variant="danger" className={styles.button} onClick={() => setShowModal(true)}>Удалить</Button>
+                </div>
               </div>
             </Card.Body>
           </Card>

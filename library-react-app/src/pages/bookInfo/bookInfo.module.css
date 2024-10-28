@@ -53,11 +53,32 @@
     margin-top: 15px;
   }
   
-  .buttonGroup {
+  .groupButton {
     display: flex;
-    gap: 10px;
-    margin-top: 20px;
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 10px; 
   }
+
+  .userButton {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 10px; 
+  }
+
+  .adminButtonGroup {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px; 
+  }
+  
+  .taken-book-text {
+    color: #4f9dd9; 
+    font-weight: bold;
+    margin-bottom: 10px; 
+  }
+  
   
   .button {
     min-width: 100px;
@@ -96,6 +117,7 @@
     background-color: rgba(0, 0, 0, 0.8) !important;
     cursor: pointer !important;
   }  
+  
 
   @media (max-width: 768px) {
     .card-title {

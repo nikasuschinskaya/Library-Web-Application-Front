@@ -1,0 +1,131 @@
+.root {
+    width: 100%;
+    max-width: 400px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    padding: 20px; 
+    margin-top: 30px; 
+    border-radius: 8px;
+    background-color: #f7f7f7; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+a,
+a:visited {
+    color: var(--color-dark);
+}
+
+input[type="text"],
+input[type="password"],
+button,
+textarea {
+    font-size: 16px; 
+    padding: 0.5rem; 
+    border-radius: 0.5rem;
+    border: 1px solid #ccc; 
+}
+
+.successAlert {
+    position: fixed !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    width: 90% !important; 
+    max-width: 600px; 
+    text-align: center;
+    padding: 20px; 
+    font-weight: bold !important;
+    background-color: rgba(76, 175, 80, 0.9); 
+    color: white; 
+}
+
+.successAlert img {
+    width: 50px; 
+    height: 50px;
+    animation: bounce 1s infinite;
+    margin: 10px;
+}
+
+.successAlert.alert-heading {
+    font-size: 1.5rem;
+}
+
+.successAlert p {
+    font-size: 1rem; 
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px); 
+    }
+    60% {
+        transform: translateY(-5px); 
+    }
+}
+
+.hide {
+    display: none;
+}
+
+.valid {
+    color: var(--color-valid);
+}
+
+.invalid {
+    color: var(--color-invalid);
+}
+
+.valid,
+.invalid {
+    margin-left: 0.25rem;
+    width: 20px;
+    height: 20px;
+}
+
+.customButton {
+    margin-top: 20px; 
+    color: #262626;
+    background: #FFFFFF;
+    border-color: #262626;
+    font-size: 16px !important; 
+    font-weight: bold !important;
+    padding: 10px 15px; 
+    width: 100%;
+}
+
+.customButton.primary {
+    color: #262626 !important;
+    background: #FFFFFF !important;
+    border-color: #262626 !important;
+}
+
+.customButton.secondary {
+    background: #54585c !important;
+    color: white !important;
+    border-color: #54585c !important;
+}
+
+.customButton:hover {
+    color: #FFFFFF !important;
+    background: #262626 !important;
+    border-color: #262626 !important;
+}
+
+.formLabel {
+    font-size: 18px; 
+    font-weight: bold;
+}
+
+.regLabel {
+    padding-bottom: 10px;
+}
+
+.formText {
+    font-size: 14px !important; 
+}

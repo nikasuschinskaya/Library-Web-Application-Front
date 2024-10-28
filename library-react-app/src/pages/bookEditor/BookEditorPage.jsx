@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import LibraryApi from "../../api";
-
 import styles from "./bookEditor.module.css";
 
 export const BookEditorPage = () => {
@@ -18,8 +17,9 @@ export const BookEditorPage = () => {
     authors: [],
   });
 
-  const [originalBookData, setOriginalBookData] = useState(null); 
+  const [originalBookData, setOriginalBookData] = useState(null);
   const [allAuthors, setAllAuthors] = useState([]);
+  const [allGenres, setAllGenres] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,18 @@ export const BookEditorPage = () => {
         setError("Не удалось загрузить авторов.");
       }
     };
+
+    const fetchGenres = async () => {
+      try {
+        const genres = await LibraryApi.getAllGenres();
+        setAllGenres(genres);
+      } catch (err) {
+        setError("Не удалось загрузить жанры.");
+      }
+    };
+
     fetchAuthors();
+    fetchGenres();
   }, []);
 
   useEffect(() => {
@@ -41,19 +52,20 @@ export const BookEditorPage = () => {
       const fetchBook = async () => {
         try {
           const book = await LibraryApi.getBookById(id);
-          const genre = await LibraryApi.getGenreById(book.genreId);
-          const authors = book.authors.map((author) => author.id);
+          const authors = (book.authors || []).map((author) => author.id);
 
           setBookData({
             name: book.name || "",
             isbn: book.isbn || "",
             description: book.description || "",
-            genre: genre.name || "",
+            genre: book.genreId || "", 
             count: book.count || 1,
             authors: authors,
           });
-          setOriginalBookData({ ...bookData }); 
+
+          setOriginalBookData({ ...bookData });
           setSelectedAuthors(authors);
+
         } catch (err) {
           setError("Не удалось загрузить информацию о книге.");
         }
@@ -77,10 +89,16 @@ export const BookEditorPage = () => {
       name: bookData.name,
       isbn: bookData.isbn,
       description: bookData.description,
-      genre: bookData.genre,
+      genreId: bookData.genre,
       count: bookData.count,
-      authors: selectedAuthors.map((authorId) => ({ id: authorId })),
+      authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id)),
     };
+
+    console.log("Selected Authors:", selectedAuthors);
+    console.log("bookRequest.authors:", bookRequest.authors);
+
+    console.log("Book Request Data:", bookRequest);
+
 
     try {
       if (id) {
@@ -97,6 +115,7 @@ export const BookEditorPage = () => {
       setLoading(false);
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -105,8 +124,8 @@ export const BookEditorPage = () => {
 
   const handleAuthorSelect = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
-    setSelectedAuthors(selectedOptions);
-  };
+    setSelectedAuthors(selectedOptions); 
+  };  
 
   const isFormValid = () => {
     return (
@@ -164,13 +183,22 @@ export const BookEditorPage = () => {
         <Form.Group controlId="genre" className="mb-3">
           <Form.Label className={styles.formLabel}>Жанр</Form.Label>
           <Form.Control
-            type="text"
+            as="select"
             name="genre"
             value={bookData.genre}
             onChange={handleChange}
             className={styles.formControl}
             required
-          />
+          >
+            <option value="" disabled>
+              Выберите жанр
+            </option>
+            {allGenres.map((genre) => (
+              <option key={genre.id} value={genre.id}>
+                {genre.name}
+              </option>
+            ))}
+          </Form.Control>
         </Form.Group>
 
         <Form.Group controlId="count" className="mb-3">
