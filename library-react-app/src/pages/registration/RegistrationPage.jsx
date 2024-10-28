@@ -70,7 +70,7 @@ export const RegistrationPage = () => {
         <Alert variant="success" className={styles.successAlert}>
           <img src="/images/success.png" alt="Успешно!" />
           <p>Вы успешно зарегистрированы!</p>
-          <Alert.Heading>Для входа в приложение нажмите на кнопку {"Войти"}</Alert.Heading>
+          <Alert.Heading className={styles["alert-heading"]}>Для входа в приложение нажмите на кнопку {"Войти"}</Alert.Heading>
         </Alert>
       ) : (
         <section className={styles.root}>

@@ -12,7 +12,7 @@ import styles from "./bookInfo.module.css";
 export const BookInfoPage = () => {
   const { isbn } = useParams();
   const navigate = useNavigate();
-  const { user } = useUserContext();
+  const { user, setUser } = useUserContext();
   
   const [book, setBook] = useState(null);
   const [genreName, setGenreName] = useState("");
@@ -23,35 +23,69 @@ export const BookInfoPage = () => {
   const [imageURL, setImageURL] = useState("");
   const [hasTakenBook, setHasTakenBook] = useState(false); 
 
+  const isAdmin = user?.role.name === "Admin";
+
   useEffect(() => {
     const fetchBookInfo = async () => {
       setLoading(true);
       setError(null);
-
+  
       try {
         const bookData = await LibraryApi.getBookInfoByISBN(isbn);
         setBook(bookData);
-
+  
         if (bookData.genreId) {
           const genre = await LibraryApi.getGenreById(bookData.genreId);
           setGenreName(genre.name);
         }
+  
+        const userBookIds = user?.userBooks?.map((userBook) => userBook.bookId) || [];
+        setHasTakenBook(userBookIds.includes(bookData.id));
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchBookInfo();
-  }, [isbn]);
+  }, [isbn, user]);
+
 
   const handleTakeBook = async () => {
     if (!book) return; 
 
     try {
       await LibraryApi.takeBook(book.id, user.id);
+
       setHasTakenBook(true); 
+
+      const updatedUser = {
+        ...user,
+        userBooks: [
+          ...user.userBooks,
+          {
+            book: {
+              name: book.name,
+              isbn: isbn,
+              authors: [{
+                name: book.authors.map((author) => author.name),
+                surname: book.authors.map((author) => author.surname)
+              }]
+            },
+            bookId: book.id,
+            dateTaken: new Date(),
+            status: 0,
+            returnDate: (() => {
+              const returnDate = new Date();
+              returnDate.setDate(returnDate.getDate() + 10);
+              return returnDate;
+            })() 
+          }
+        ]
+      };
+      
+      setUser(updatedUser);
     } catch (error) {
       setError("Ошибка при взятии книги."); 
     }
@@ -140,10 +174,12 @@ export const BookInfoPage = () => {
                       <span className={styles["taken-book-text"]}>Вы уже взяли эту книгу</span>
                     )}
                 </div>
-                <div className={styles.adminButtonGroup}>
-                  <Button variant="secondary" className={styles.button} onClick={handleEditBook}>Редактировать</Button>
-                  <Button variant="danger" className={styles.button} onClick={() => setShowModal(true)}>Удалить</Button>
-                </div>
+                {isAdmin && (
+                  <div className={styles.adminButtonGroup}>
+                    <Button variant="secondary" className={styles.button} onClick={handleEditBook}>Редактировать</Button>
+                    <Button variant="danger" className={styles.button} onClick={() => setShowModal(true)}>Удалить</Button>
+                  </div>
+                )}
               </div>
             </Card.Body>
           </Card>

@@ -1,5 +1,5 @@
-.pageContainer {
-    padding: 20px;
+  .pageContainer {
+    padding: 5px;
   }
   
   .userInfo {
@@ -43,4 +43,16 @@
   .bookCard .card-text {
     font-size: 1rem;
     color: #555 !important;
+  }
+
+  .returnButton {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #ff4d4f;
+    border-color: #ff4d4f;
+  }
+  
+  .returnButton:hover {
+    background-color: #ff4d4f;
+    color: white;
   }

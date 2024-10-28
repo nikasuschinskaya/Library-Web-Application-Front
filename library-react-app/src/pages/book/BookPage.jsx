@@ -3,11 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Pagination, Card, Form, Button } from "react-bootstrap";
 
 import LibraryApi from "../../api"; 
+import { useUserContext } from "../../context/UserContext";
+
 import { bookStockStatus } from "../../config/bookStockStatus.config";
+
 import styles from "./book.module.css";
 
 export const BookPage = () => {
   const navigate = useNavigate();
+  const { user } = useUserContext();
 
   const [books, setBooks] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -20,6 +24,8 @@ export const BookPage = () => {
   const [selectedAuthor, setSelectedAuthor] = useState('');
   const [genres, setGenres] = useState([]); 
   const [authors, setAuthors] = useState([]);
+
+  const isAdmin = user?.role.name === "Admin";
 
   useEffect(() => {
     const fetchGenresAndAuthors = async () => {
@@ -99,11 +105,13 @@ export const BookPage = () => {
         <Col>
           <h2>Каталог книг</h2>
         </Col>
-        <Col xs="auto">
+        {isAdmin && (
+          <Col xs="auto">
           <Button variant="success" onClick={() => navigate("/book/edit")}>
             Добавить книгу
           </Button>
         </Col>
+        )}
       </Row>
 
       <Form className="mb-4">
