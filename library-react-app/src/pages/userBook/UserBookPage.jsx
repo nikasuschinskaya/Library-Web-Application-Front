@@ -51,9 +51,6 @@ export const UserBookPage = () => {
                     <Card.Text className={styles["card-text"]}>
                       <strong>Статус: </strong> {userBook.status === 1 ? "возвращена" : "не возвращена"}
                     </Card.Text>
-                  </Card.Body>
-                </Card>
-              </Link>
                     {userBook.status !== 1 && (
                       <Button
                         variant="outline-danger"
@@ -63,6 +60,9 @@ export const UserBookPage = () => {
                         Вернуть книгу
                       </Button>
                     )}
+                  </Card.Body>
+                </Card>
+              </Link>
             </Col>
           ))
         ) : (
