@@ -1,12 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Container, Card, Row, Col, Button } from "react-bootstrap";
-
-import LibraryApi from "../../api"; 
+import LibraryApi from "../../api";
 import { useUserContext } from "../../context/UserContext";
-
 import styles from "./userbook.module.css";
-
 
 export const UserBookPage = () => {
   const { user, setUser } = useUserContext();
@@ -14,33 +11,24 @@ export const UserBookPage = () => {
   const handleReturnBook = async (bookId) => {
     try {
       await LibraryApi.returnBook(bookId, user.id);
-      console.log("Book returned successfully");
 
-      const updatedUser = { 
-        ...user, 
-        userBooks: user.userBooks.map((ub) => 
-          ub.bookId === bookId ? { ...ub, status: 1 } : ub
-        )
-      };
-      setUser(updatedUser);
-      
+      console.log("Book returned successfully");
+  
+      const updatedUserBooks = user.userBooks.map((ub) =>
+        ub.bookId === bookId ? { ...ub, status: 1 } : ub
+      );
+      setUser({ ...user, userBooks: updatedUserBooks });
+  
     } catch (error) {
-      console.error("Error returning book:", error);
+      console.error("Error in handleReturnBook:", error.response || error.message || error);
     }
   };
-
+  
   const activeBooks = user.userBooks.filter((userBook) => userBook.status !== 1);
   const archivedBooks = user.userBooks.filter((userBook) => userBook.status === 1);
 
   return (
     <Container fluid="md" className={styles.pageContainer}>
-      {/* <div className={styles.userInfo}>
-        <h2>Информация о пользователе</h2>
-        <p><strong>Username: </strong>{user.name}</p>
-        <p><strong>Email: </strong>{user.email}</p>
-        <p><strong>Role: </strong>{user.role.name}</p>
-      </div> */}
-
       <h3 className={styles.sectionTitle}>Мои книги</h3>
       <Row className="g-4">
         {activeBooks.length > 0 ? (
@@ -50,26 +38,31 @@ export const UserBookPage = () => {
                 <Card className={styles.bookCard}>
                   <Card.Body>
                     <Card.Title className={styles["card-title"]}>{userBook.book.name}</Card.Title>
-                    <Card.Text className={styles["card-text"]}><strong>Автор: </strong> 
-                      {userBook.book.authors.map((author) => author.name + " " + author.surname).join(", ")}
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Автор: </strong>
+                      {userBook.book.authors.map((author) => `${author.name} ${author.surname}`).join(", ")}
                     </Card.Text>
-                    <Card.Text className={styles["card-text"]}><strong>Дата взятия: </strong> {new Date(userBook.dateTaken).toLocaleDateString()}</Card.Text>
-                    <Card.Text className={styles["card-text"]}><strong>Дата возвращения: </strong> {new Date(userBook.returnDate).toLocaleDateString()}</Card.Text>
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Дата взятия: </strong> {new Date(userBook.dateTaken).toLocaleDateString()}
+                    </Card.Text>
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Дата возвращения: </strong> {new Date(userBook.returnDate).toLocaleDateString()}
+                    </Card.Text>
                     <Card.Text className={styles["card-text"]}>
                       <strong>Статус: </strong> {userBook.status === 1 ? "возвращена" : "не возвращена"}
                     </Card.Text>
+                  </Card.Body>
+                </Card>
+              </Link>
                     {userBook.status !== 1 && (
-                      <Button 
-                        variant="outline-danger" 
-                        className={styles.returnButton} 
+                      <Button
+                        variant="outline-danger"
+                        className={styles.returnButton}
                         onClick={() => handleReturnBook(userBook.book.id)}
                       >
                         Вернуть книгу
                       </Button>
                     )}
-                  </Card.Body>
-                </Card>
-              </Link>
             </Col>
           ))
         ) : (
@@ -86,11 +79,16 @@ export const UserBookPage = () => {
                 <Card className={styles.bookCard}>
                   <Card.Body>
                     <Card.Title className={styles["card-title"]}>{userBook.book.name}</Card.Title>
-                    <Card.Text className={styles["card-text"]}><strong>Автор: </strong> 
-                      {userBook.book.authors.map((author) => author.name + " " + author.surname).join(", ")}
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Автор: </strong>
+                      {userBook.book.authors.map((author) => `${author.name} ${author.surname}`).join(", ")}
                     </Card.Text>
-                    <Card.Text className={styles["card-text"]}><strong>Дата взятия: </strong> {new Date(userBook.dateTaken).toLocaleDateString()}</Card.Text>
-                    <Card.Text className={styles["card-text"]}><strong>Дата возврата: </strong> {new Date(userBook.returnDate).toLocaleDateString()}</Card.Text>
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Дата взятия: </strong> {new Date(userBook.dateTaken).toLocaleDateString()}
+                    </Card.Text>
+                    <Card.Text className={styles["card-text"]}>
+                      <strong>Дата возврата: </strong> {new Date(userBook.returnDate).toLocaleDateString()}
+                    </Card.Text>
                     <Card.Text className={styles["card-text"]}>
                       <strong>Статус: </strong> возвращена
                     </Card.Text>

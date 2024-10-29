@@ -202,8 +202,8 @@ class LibraryApi {
     async returnBook(bookId, userId) {
         try {
             await axios.put(`${baseUrl}/book/return-book`, {
-                bookId: bookId,
-                usedId: userId
+                usedId: userId,
+                bookId: bookId
             });
             console.log("Book returned successfully:");
         } catch (error) {
