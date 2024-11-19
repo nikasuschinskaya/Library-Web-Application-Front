@@ -8,6 +8,15 @@ export const BookEditorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // const [bookData, setBookData] = useState({
+  //   name: "",
+  //   isbn: "",
+  //   description: "",
+  //   genre: "",
+  //   count: 1,
+  //   authors: [],
+  // });
+
   const [bookData, setBookData] = useState({
     name: "",
     isbn: "",
@@ -15,7 +24,9 @@ export const BookEditorPage = () => {
     genre: "",
     count: 1,
     authors: [],
+    imageUrl: ""
   });
+  
 
   const [originalBookData, setOriginalBookData] = useState(null);
   const [allAuthors, setAllAuthors] = useState([]);
@@ -85,27 +96,35 @@ export const BookEditorPage = () => {
       return;
     }
 
-    const bookRequest = {
+    const bookUpdateRequest = {
       name: bookData.name,
       isbn: bookData.isbn,
       description: bookData.description,
       genreId: bookData.genre,
       count: bookData.count,
-      authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id)),
+      authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id))
+    };
+
+    const bookAddRequest = {
+      name: bookData.name,
+      isbn: bookData.isbn,
+      description: bookData.description,
+      imageURL: bookData.imageUrl,
+      genreId: bookData.genre,
+      count: bookData.count,
+      authorIds: selectedAuthors
     };
 
     console.log("Selected Authors:", selectedAuthors);
-    console.log("bookRequest.authors:", bookRequest.authors);
-
-    console.log("Book Request Data:", bookRequest);
-
+    console.log("Book Update Request Data:", bookUpdateRequest);
+    console.log("Book Add Request Data:", bookAddRequest);
 
     try {
       if (id) {
-        await LibraryApi.updateBook(id, bookRequest);
+        await LibraryApi.updateBook(id, bookUpdateRequest);
         alert("Книга успешно обновлена.");
       } else {
-        await LibraryApi.addBook(bookRequest);
+        await LibraryApi.addBook(bookAddRequest);
         alert("Книга успешно добавлена.");
       }
       navigate("/books");
@@ -152,6 +171,7 @@ export const BookEditorPage = () => {
             value={bookData.name}
             onChange={handleChange}
             className={styles.formControl}
+            placeholder="Введите название книги"
             required
           />
         </Form.Group>
@@ -164,6 +184,7 @@ export const BookEditorPage = () => {
             value={bookData.isbn}
             onChange={handleChange}
             className={styles.formControl}
+            placeholder="Введите ISBN книги. Пример: 978-5-389-09917-3"
             required
           />
         </Form.Group>
@@ -177,6 +198,7 @@ export const BookEditorPage = () => {
             onChange={handleChange}
             rows={3}
             className={styles.formControl}
+            placeholder="Введите подробное описание / аннотацию книги"
           />
         </Form.Group>
 
@@ -231,6 +253,20 @@ export const BookEditorPage = () => {
             ))}
           </Form.Control>
         </Form.Group>
+
+        {id === undefined && (
+          <Form.Group controlId="imageUrl" className="mb-3">
+            <Form.Label className={styles.formLabel}>Ссылка на изображение</Form.Label>
+            <Form.Control
+              type="url"
+              name="imageUrl"
+              value={bookData.imageUrl || ""}
+              onChange={handleChange}
+              className={styles.formControl}
+              placeholder="Введите URL изображения книги (необязательно)"
+            />
+          </Form.Group>
+        )}
 
         <Button variant="primary" type="submit" className={styles.submitButton} disabled={isSubmitDisabled}>
           {loading ? "Сохранение..." : id ? "Сохранить изменения" : "Добавить книгу"}

@@ -33,7 +33,7 @@ export const UserBookPage = () => {
       <Row className="g-4">
         {activeBooks.length > 0 ? (
           activeBooks.map((userBook) => (
-            <Col key={userBook.id} xs={12} sm={6} md={4}>
+            <Col key={`${userBook.id}-${userBook.book.isbn}`} xs={12} sm={6} md={4}>
               <Link to={`/book/${userBook.book.isbn}`} style={{ textDecoration: "none" }}>
                 <Card className={styles.bookCard}>
                   <Card.Body>
