@@ -8,15 +8,6 @@ export const BookEditorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // const [bookData, setBookData] = useState({
-  //   name: "",
-  //   isbn: "",
-  //   description: "",
-  //   genre: "",
-  //   count: 1,
-  //   authors: [],
-  // });
-
   const [bookData, setBookData] = useState({
     name: "",
     isbn: "",
@@ -26,7 +17,6 @@ export const BookEditorPage = () => {
     authors: [],
     imageUrl: ""
   });
-  
 
   const [originalBookData, setOriginalBookData] = useState(null);
   const [allAuthors, setAllAuthors] = useState([]);
@@ -34,6 +24,8 @@ export const BookEditorPage = () => {
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageFile, setImageFile] = useState(null); 
 
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -85,41 +77,74 @@ export const BookEditorPage = () => {
     }
   }, [id]);
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImageLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await LibraryApi.uploadImage(formData); 
+      setBookData((prev) => ({ ...prev, imageUrl: response.imageUrl })); 
+    } catch (err) {
+      setError("Ошибка загрузки изображения.");
+    } finally {
+      setImageLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     const hasChanges = JSON.stringify(bookData) !== JSON.stringify(originalBookData);
-    if (!hasChanges) {
+    if (!hasChanges && !imageFile) {
       alert("Нет изменений для сохранения.");
       setLoading(false);
       return;
     }
 
-    const bookUpdateRequest = {
-      name: bookData.name,
-      isbn: bookData.isbn,
-      description: bookData.description,
-      genreId: bookData.genre,
-      count: bookData.count,
-      authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id))
-    };
-
-    const bookAddRequest = {
-      name: bookData.name,
-      isbn: bookData.isbn,
-      description: bookData.description,
-      imageURL: bookData.imageUrl,
-      genreId: bookData.genre,
-      count: bookData.count,
-      authorIds: selectedAuthors
-    };
-
-    console.log("Selected Authors:", selectedAuthors);
-    console.log("Book Update Request Data:", bookUpdateRequest);
-    console.log("Book Add Request Data:", bookAddRequest);
-
     try {
+      let imageUrl = bookData.imageUrl;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const uploadResponse = await LibraryApi.uploadImage(formData);
+        imageUrl = uploadResponse.filePath; 
+      }
+
+      const bookUpdateRequest = {
+        name: bookData.name,
+        isbn: bookData.isbn,
+        description: bookData.description,
+        genreId: bookData.genre,
+        count: bookData.count,
+        authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id))
+      };
+
+      const normalizeImageUrl = (imageUrl) => {
+        const matches = imageUrl.match(/uploads\\?.*/);
+        return matches ? matches[0] : ''; 
+      };
+
+      const bookAddRequest = {
+        name: bookData.name,
+        isbn: bookData.isbn,
+        description: bookData.description,
+        imageURL: normalizeImageUrl(imageUrl),
+        genreId: bookData.genre,
+        count: bookData.count,
+        authorIds: selectedAuthors
+      };
+
+      console.log("Selected Authors:", selectedAuthors);
+      console.log("Book Update Request Data:", bookUpdateRequest);
+      console.log("Book Add Request Data:", bookAddRequest);
+
       if (id) {
         await LibraryApi.updateBook(id, bookUpdateRequest);
         alert("Книга успешно обновлена.");
@@ -139,6 +164,11 @@ export const BookEditorPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setBookData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setImageFile(file); 
   };
 
   const handleAuthorSelect = (e) => {
@@ -255,17 +285,14 @@ export const BookEditorPage = () => {
         </Form.Group>
 
         {id === undefined && (
-          <Form.Group controlId="imageUrl" className="mb-3">
-            <Form.Label className={styles.formLabel}>Ссылка на изображение</Form.Label>
+           <Form.Group controlId="imageUpload" className="mb-3">
+            <Form.Label className={styles.formLabel}>Загрузка изображения</Form.Label>
             <Form.Control
-              type="url"
-              name="imageUrl"
-              value={bookData.imageUrl || ""}
-              onChange={handleChange}
+              type="file"
+              onChange={handleFileChange}
               className={styles.formControl}
-              placeholder="Введите URL изображения книги (необязательно)"
             />
-          </Form.Group>
+           </Form.Group>
         )}
 
         <Button variant="primary" type="submit" className={styles.submitButton} disabled={isSubmitDisabled}>

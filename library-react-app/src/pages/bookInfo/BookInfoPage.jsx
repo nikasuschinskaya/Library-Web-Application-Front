@@ -135,11 +135,16 @@ export const BookInfoPage = () => {
         <Col md={4}>
           <div className={styles.imageContainer}>
             {book.imageURL ? (
-              <Image src={book.imageURL} alt={book.name} className={styles.image} fluid />
+              <Image
+                src={book.imageURL ? `https://localhost:7187/${book.imageURL}` : noImage}
+                alt={book.name}
+                className={styles.image}
+                fluid
+              />
             ) : (
               <div className={styles.addImageContainer} onClick={() => setShowImageModal(true)}>
                 <Image src={noImage} alt="No Image Available" className={styles.image} fluid />
-                <Button variant="outline-primary" className={styles.addImageButton}>+</Button>
+                {/* <Button variant="outline-primary" className={styles.addImageButton}>+</Button> */}
               </div>
             )}
           </div>

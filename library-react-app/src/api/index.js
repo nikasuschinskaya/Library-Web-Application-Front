@@ -199,6 +199,17 @@ class LibraryApi {
         }
     }
 
+    async uploadImage(formData) {
+        try {
+            const response = await axios.post(`${baseUrl}/image/upload`, formData
+                // headers: { "Content-Type": "application/json" },
+            );
+            return response.data;
+        } catch (error) {
+            throw error.response?.data?.message || "Failed to add book image";
+        }
+    }
+      
     async returnBook(bookId, userId) {
         try {
             await axios.put(`${baseUrl}/book/return-book`, {
