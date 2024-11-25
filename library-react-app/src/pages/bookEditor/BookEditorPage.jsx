@@ -64,6 +64,7 @@ export const BookEditorPage = () => {
             genre: book.genreId || "", 
             count: book.count || 1,
             authors: authors,
+            imageUrl: book.imageURL || "",
           });
 
           setOriginalBookData({ ...bookData });
@@ -76,26 +77,6 @@ export const BookEditorPage = () => {
       fetchBook();
     }
   }, [id]);
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setImageLoading(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await LibraryApi.uploadImage(formData); 
-      setBookData((prev) => ({ ...prev, imageUrl: response.imageUrl })); 
-    } catch (err) {
-      setError("Ошибка загрузки изображения.");
-    } finally {
-      setImageLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,18 +98,19 @@ export const BookEditorPage = () => {
         imageUrl = uploadResponse.filePath; 
       }
 
+      const normalizeImageUrl = (imageUrl) => {
+        const matches = imageUrl.match(/uploads\\?.*/);
+        return matches ? matches[0] : ''; 
+      };
+
       const bookUpdateRequest = {
         name: bookData.name,
         isbn: bookData.isbn,
         description: bookData.description,
         genreId: bookData.genre,
         count: bookData.count,
+        imageURL: normalizeImageUrl(imageUrl),
         authors: selectedAuthors.map(id => allAuthors.find(author => author.id === id))
-      };
-
-      const normalizeImageUrl = (imageUrl) => {
-        const matches = imageUrl.match(/uploads\\?.*/);
-        return matches ? matches[0] : ''; 
       };
 
       const bookAddRequest = {
@@ -154,7 +136,7 @@ export const BookEditorPage = () => {
       }
       navigate("/books");
     } catch (err) {
-      setError(err);
+      setError(err.message || "Произошла ошибка.");
     } finally {
       setLoading(false);
     }
@@ -191,7 +173,7 @@ export const BookEditorPage = () => {
   return (
     <Container className={styles.formContainer}>
       <h2>{id ? "Редактирование книги" : "Добавление новой книги"}</h2>
-      {error && <Alert variant="danger" className={styles.alert}>{error}</Alert>}
+      {error && <Alert variant="danger" className={styles.alert}>{error.message || "Произошла ошибка"}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="name" className="mb-3">
           <Form.Label className={styles.formLabel}>Название книги</Form.Label>
@@ -284,16 +266,25 @@ export const BookEditorPage = () => {
           </Form.Control>
         </Form.Group>
 
-        {id === undefined && (
-           <Form.Group controlId="imageUpload" className="mb-3">
-            <Form.Label className={styles.formLabel}>Загрузка изображения</Form.Label>
-            <Form.Control
-              type="file"
-              onChange={handleFileChange}
-              className={styles.formControl}
-            />
-           </Form.Group>
-        )}
+        <Form.Group controlId="imageUpload" className="mb-3">
+          <Form.Label className={styles.formLabel}>
+            {id ? "Изменить изображение" : "Загрузка изображения"}
+          </Form.Label>
+          {bookData.imageUrl && !imageFile && (
+            <div className="mb-3">
+              <img
+                src={`https://localhost:7187/${bookData.imageUrl}`}
+                alt="Текущая обложка книги"
+                className={styles.bookImagePreview}
+              />
+            </div>
+          )}
+          <Form.Control
+            type="file"
+            onChange={handleFileChange}
+            className={styles.formControl}
+          />
+        </Form.Group>
 
         <Button variant="primary" type="submit" className={styles.submitButton} disabled={isSubmitDisabled}>
           {loading ? "Сохранение..." : id ? "Сохранить изменения" : "Добавить книгу"}
