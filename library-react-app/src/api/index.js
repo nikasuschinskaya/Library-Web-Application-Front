@@ -49,6 +49,7 @@ class LibraryApi {
     async getUser(userId) {
         try {
             const response = await axios.get(`${baseUrl}/user/${userId}`);
+            console.log(userId);
             return response.data;
         } catch (error) {
             console.error("Failed to fetch user data:", error);
